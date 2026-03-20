@@ -28,7 +28,7 @@ rect: false # (bool) rectangular batches for train; rectangular batching for val
 device: # (int | str | list) device: 0 or [0,1,2,3] for cuda, 'cpu'/'mps', or -1/[-1,-1] to auto-select idle gpus
 batch: 16 # (int | float) batch size as int (e.g. 16), or float 0.0–1.0 for AutoBatch fraction of GPU memory
 project: train_deneme # (str, optional) project name for results root
-name: # deneme1 (str, optional) experiment name; results in 'project/name'
+name: deneme1 # (str, optional) experiment name; results in 'project/name'
 verbose: true # (bool) print verbose logs during training/val
 compile: false # (bool | str) enable torch.compile() backend='inductor'; true="default", false=off, or "default|reduce-overhead|max-autotune-no-cudagraphs"
 

@@ -3,11 +3,10 @@ import os
 from typing import Any
 
 
-def get_from_config(config_path: str, key: str) -> Any | None:
-    if not os.path.exists(config_path):
+def getFromConfig(configPath: str, key: str) -> Any | None:
+    if not os.path.exists(configPath):
         return None
 
-    with open(config_path, "r") as f:
+    with open(configPath, "r") as f:
         config: dict[str, Any] = yaml.safe_load(f)
         return config.get(key)
-

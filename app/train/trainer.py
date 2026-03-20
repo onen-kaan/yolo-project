@@ -1,5 +1,5 @@
 from ultralytics import YOLO
-from app.utilities.utils import get_from_config
+from app.utilities.utils import getFromConfig
 from typing import Any
 
 
