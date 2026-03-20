@@ -1,0 +1,8 @@
+venv/
+.venv/
+
+yolo_dataset/
+datasets/
+
+runs/
+*.pt
