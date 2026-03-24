@@ -1,2 +1,3 @@
 https://www.w3schools.com/python/python_encapsulation.asp
 https://www.educative.io/answers/what-is-encapsulation-in-python
+https://www.youtube.com/@statquest
