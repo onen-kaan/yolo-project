@@ -4,5 +4,7 @@ venv/
 yolo_dataset/
 datasets/
 
+*__*__*
+
 runs/
 *.pt
