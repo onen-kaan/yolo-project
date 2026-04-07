@@ -59,7 +59,6 @@ def parseArgs() -> argparse.Namespace:
 def main() -> None:
     args = parseArgs()
 
-    # The 'args.command' will contain the name of the subparser used
     if args.command == "train":
         config = args.config or "train.yaml"
 
@@ -78,15 +77,12 @@ def main() -> None:
             print(r)
 
     elif args.command == "segment":
-        # 1. Initialize the segmentator
         seg = YoloSegmentator(
             segmentator=args.model, videoPath=args.video, frameCount=args.frames
         )
 
         print(f"Starting isolation for target: {args.target}")
 
-        # 2. Get frames from the utility (Ensure these names match your YoloSegmentator property names!)
-        # Using snake_case as defined in our previous property discussion
         frames = util.getVideoImages(
             videoPath=seg.video_path, frameCount=seg.frame_count
         )
@@ -95,17 +91,12 @@ def main() -> None:
             print("No frames found or video failed to open.")
             return
 
-        # 3. Process the frames
         processed_count = 0
         for i, frame in enumerate(frames):
-            # A. Get raw detection data (masks, boxes, etc.)
             detections = seg.get_frame_detections(frame)
 
-            # B. Create the black background version
             isolated_frame = seg.isolate_object(frame, detections, args.target)
 
-            # C. Handle the result (Save or Show)
-            # Creating a simple naming convention for output
             output_name = f"output_{args.target}_{i}.jpg"
             cv2.imwrite(output_name, isolated_frame)
             processed_count += 1

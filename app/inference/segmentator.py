@@ -9,10 +9,8 @@ class YoloSegmentator:
         self._segmentatorPath = segmentator
         self._videoPath = videoPath
         self._frameCount = frameCount
-        # Initialize the model using the path
         self._model = YOLO(segmentator)
 
-    # --- Getters and Setters for Segmentator Path ---
     @property
     def segmentator(self) -> str:
         return self._segmentatorPath
@@ -23,7 +21,6 @@ class YoloSegmentator:
         # Re-initialize the model if the path changes
         self._model = YOLO(path)
 
-    # --- Getters and Setters for Video Path ---
     @property
     def video_path(self) -> str:
         return self._videoPath
@@ -32,7 +29,6 @@ class YoloSegmentator:
     def video_path(self, path: str) -> None:
         self._videoPath = path
 
-    # --- Getters and Setters for Frame Count ---
     @property
     def frame_count(self) -> int:
         return self._frameCount
@@ -43,7 +39,6 @@ class YoloSegmentator:
             raise ValueError("Frame count cannot be negative.")
         self._frameCount = value
 
-    # --- Core Methods ---
     def get_frame_detections(self, frame: np.ndarray) -> list[dict[str, Any]]:
         results = self._model(frame, verbose=False)
         detections_list = []
@@ -66,14 +61,10 @@ class YoloSegmentator:
         black_bg = np.zeros_like(frame)
         target_id = None
 
-        # Accessing model names via the internal model
         for k, v in self._model.names.items():
             if v.lower() == target_name.lower():
                 target_id = k
                 break
-
-        if target_id is None:
-            return black_bg
 
         combined_mask = np.zeros(frame.shape[:2], dtype=np.uint8)
 
