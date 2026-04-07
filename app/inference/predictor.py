@@ -1,5 +1,5 @@
 from ultralytics import YOLO
-from app.utilities.utils import getFromConfig
+from utilities.utils import getFromConfig
 
 
 class YoloPredictor:

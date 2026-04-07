@@ -6,42 +6,42 @@ from typing import Any
 
 class YoloSegmentator:
     def __init__(self, segmentator: str, videoPath: str, frameCount: int) -> None:
-        self._segmentator_path = segmentator
-        self._video_path = videoPath
-        self._frame_count = frameCount
+        self._segmentatorPath = segmentator
+        self._videoPath = videoPath
+        self._frameCount = frameCount
         # Initialize the model using the path
         self._model = YOLO(segmentator)
 
     # --- Getters and Setters for Segmentator Path ---
     @property
     def segmentator(self) -> str:
-        return self._segmentator_path
+        return self._segmentatorPath
 
     @segmentator.setter
     def segmentator(self, path: str) -> None:
-        self._segmentator_path = path
+        self._segmentatorPath = path
         # Re-initialize the model if the path changes
         self._model = YOLO(path)
 
     # --- Getters and Setters for Video Path ---
     @property
     def video_path(self) -> str:
-        return self._video_path
+        return self._videoPath
 
     @video_path.setter
     def video_path(self, path: str) -> None:
-        self._video_path = path
+        self._videoPath = path
 
     # --- Getters and Setters for Frame Count ---
     @property
     def frame_count(self) -> int:
-        return self._frame_count
+        return self._frameCount
 
     @frame_count.setter
     def frame_count(self, value: int) -> None:
         if value < 0:
             raise ValueError("Frame count cannot be negative.")
-        self._frame_count = value
+        self._frameCount = value
 
     # --- Core Methods ---
     def get_frame_detections(self, frame: np.ndarray) -> list[dict[str, Any]]:
