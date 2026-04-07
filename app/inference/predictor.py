@@ -1,6 +1,5 @@
 from ultralytics import YOLO
 from app.utilities.utils import getFromConfig
-from typing import Any
 
 
 class YoloPredictor:
@@ -18,7 +17,7 @@ class YoloPredictor:
 
     @property
     def modelName(self) -> str:
-        return self.__model.overrides.get("model", "unknown")
+        return self.__model.overrides.get("model", "Unknown")
 
     def predict(self) -> list:
         print(f"Starting inference with config: {self.__configPath}")

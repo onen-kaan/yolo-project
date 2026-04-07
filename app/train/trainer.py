@@ -10,7 +10,7 @@ class YoloTrainer:
         self.__model = self._setup_model()
 
     def _setup_model(self) -> YOLO:
-        model_val = get_from_config(self.__config_path, "model")
+        model_val = getFromConfig(self.__config_path, "model")
         return YOLO(str(model_val) if model_val else "yolo26n.pt")
 
     @property
@@ -19,7 +19,7 @@ class YoloTrainer:
 
     @property
     def model_name(self) -> str:
-        return self.__model.overrides.get("model", "unknown")
+        return self.__model.overrides.get("model", "Unknown")
 
     def train(self) -> Any:
         print(f"Starting training with config: {self.__config_path}")
