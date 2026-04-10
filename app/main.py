@@ -1,7 +1,7 @@
 import argparse
-
 import cv2
 import utilities.utils as util
+import os
 from inference.predictor import YoloPredictor
 from inference.segmentator import YoloSegmentator
 from train.trainer import YoloTrainer
@@ -32,25 +32,15 @@ def parseArgs() -> argparse.Namespace:
     )
 
     # --- SEGMENT Subcommand ---
-    seg_parser = subparsers.add_parser(
-        "segment", help="Run segmentation with black background"
+    segmentation_parser = subparsers.add_parser(
+        "segment", help="Run model segmentation"
     )
-    # These arguments ONLY exist under the 'segment' command
-    _ = seg_parser.add_argument(
-        "-v", "--video", type=str, required=True, help="Path to input video"
-    )
-    _ = seg_parser.add_argument(
-        "-m",
-        "--model",
+    _ = segmentation_parser.add_argument(
+        "-c",
+        "--config",
         type=str,
-        default="yolov26n-seg.pt",
-        help="Path to -seg.pt model",
-    )
-    _ = seg_parser.add_argument(
-        "-f", "--frames", type=int, default=30, help="Apply operation per 'N'th frame"
-    )
-    _ = seg_parser.add_argument(
-        "--target", type=str, default="car", help="Object class to isolate"
+        default="segmentation.yaml",
+        help="Path to segmentation config",
     )
 
     return parser.parse_args()
@@ -61,49 +51,61 @@ def main() -> None:
 
     if args.command == "train":
         config = args.config or "train.yaml"
-
         trainer = YoloTrainer(config_path=config)
-
         trainer.train()
 
     elif args.command == "predict":
         config = args.config or "predict.yaml"
-
         predictor = YoloPredictor(configPath=config)
-
         results = predictor.predict()
 
         for r in results:
             print(r)
 
     elif args.command == "segment":
-        seg = YoloSegmentator(
-            segmentator=args.model, videoPath=args.video, frameCount=args.frames
-        )
+        cfg_file = args.config
+        model_path: str = util.get_from_config(cfg_file, "model")
+        video_path: str = util.get_from_config(cfg_file, "data")
+        frame_step: int = util.get_from_config(cfg_file, "frame_count")
+        target: str = util.get_from_config(cfg_file, "target_class")
 
-        print(f"Starting isolation for target: {args.target}")
+        project = util.get_from_config(cfg_file, "project") or "runs"
+        name = util.get_from_config(cfg_file, "name") or "exp"
+        output_dir = os.path.join(project, name)
+        os.makedirs(output_dir, exist_ok=True)
 
-        frames = util.getVideoImages(
-            videoPath=seg.video_path, frameCount=seg.frame_count
-        )
+        segmentator = YoloSegmentator(model_path, video_path, frame_step)
+        capturer = util.get_video_capture(video_path)
+        total_frames = int(capturer.get(cv2.CAP_PROP_FRAME_COUNT))
 
-        if not frames:
-            print("No frames found or video failed to open.")
-            return
+
+
+
+        if frame_count % 5 == 0
 
         processed_count = 0
-        for i, frame in enumerate(frames):
-            detections = seg.get_frame_detections(frame)
+        while True:
+            current_frame_index = processed_count * segmentator.frame_count
+            if current_frame_index > total_frames:
+                break
 
-            isolated_frame = seg.isolate_object(frame, detections, args.target)
+            capturer.set(cv2.CAP_PROP_POS_FRAMES, current_frame_index)
 
-            output_name = f"output_{args.target}_{i}.jpg"
-            cv2.imwrite(output_name, isolated_frame)
+            success, frame = capturer.read()
+            if not success:
+                break
+
+            # Process
+            detections = segmentator.get_frame_detections(frame)
+            processed_frame = segmentator.isolate_object(frame, detections, target)
+
+            # Save
+            file_name = f"frame_{processed_count:04d}.jpg"
+            cv2.imwrite(os.path.join(output_dir, file_name), processed_frame)
+
             processed_count += 1
 
-        print(
-            f"Finished! Processed {processed_count} frames. Results saved to current directory."
-        )
+        capturer.release()
 
 
 if __name__ == "__main__":

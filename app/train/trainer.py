@@ -1,6 +1,5 @@
 from ultralytics import YOLO
-from utilities.utils import getFromConfig
-
+from utilities.utils import get_from_config
 from typing import Any
 
 
@@ -11,7 +10,7 @@ class YoloTrainer:
         self.__model = self._setup_model()
 
     def _setup_model(self) -> YOLO:
-        model_val = getFromConfig(self.__config_path, "model")
+        model_val = get_from_config(self.__config_path, "model")
         return YOLO(str(model_val) if model_val else "yolo26n.pt")
 
     @property

@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 
 
-def getFromConfig(configPath: str, key: str) -> Any | None:
+def get_from_config(configPath: str, key: str) -> Any:
     if not os.path.exists(configPath):
         return None
 
@@ -14,20 +14,11 @@ def getFromConfig(configPath: str, key: str) -> Any | None:
         return config.get(key)
 
 
-def getVideoImages(videoPath: str, frameCount: int) -> list[np.ndarray]:
-
-    cap = cv2.VideoCapture(videoPath)
-    frames: list[np.ndarray] = []
-
-    totalFrames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-    for targetIdx in range(0, totalFrames, frameCount):
-        cap.set(cv2.CAP_PROP_POS_FRAMES, targetIdx)
-
-        success, frame = cap.read()
-
-        if success:
-            frames.append(frame)
-
-    cap.release()
-    return frames
+def get_video_capture(video_path: str) -> cv2.VideoCapture:
+    """
+    Just opens the video and returns the capture object.
+    """
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        print(f"Error: Could not open video {video_path}")
+    return cap

@@ -4,6 +4,8 @@ venv/
 yolo_dataset/
 datasets/
 
+*.zip
+*deneme*
 *__*__*
 
 runs/
