@@ -15,9 +15,6 @@ def get_from_config(configPath: str, key: str) -> Any:
 
 
 def get_video_capture(video_path: str) -> cv2.VideoCapture:
-    """
-    Just opens the video and returns the capture object.
-    """
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         print(f"Error: Could not open video {video_path}")

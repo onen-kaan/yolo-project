@@ -1,53 +1,28 @@
 from dataclasses import dataclass
 from ultralytics.models import YOLO
 import numpy as np
+from utilities.VideoProcessor import VideoProcessor
 import cv2
-from typing import Any
 
 
 @dataclass
 class Object:
-    polygon: np.ndarray
+    masks: np.ndarray | None
     box: np.ndarray
-    conf: float
-    class_id: int
+    confidence: float
+    class_identifier: int
+    label_name: str
 
 
 class YoloSegmentator:
     def __init__(
-        self, segmentator_path: str, video_path: str, frame_count: int
+        self, model_path: str, video_path: str, initial_frame_count: int
     ) -> None:
-        self.__segmentator_path = segmentator_path # should be model path
+        self.__model_path = model_path
         self.__video_path = video_path
-        self.deneme = frame_count
-        self.__model = YOLO(segmentator_path)
-
-    @property
-    def segmentator(self) -> str:
-        return self.__segmentator_path
-
-    @segmentator.setter
-    def segmentator(self, path: str) -> None:
-        self.__segmentator_path = path
-        self.__model = YOLO(path)
-
-    @property
-    def video_path(self) -> str:
-        return self.__video_path
-
-    @video_path.setter
-    def video_path(self, path: str) -> None:
-        self.__video_path = path
-
-    @property
-    def frame_count(self) -> int:
-        return self.deneme
-
-    @frame_count.setter
-    def frame_count(self, value: int) -> None:
-        if value < 0:
-            raise ValueError("Frame count cannot be negative.")
-        self.deneme = value
+        self.__frame_count = initial_frame_count
+        self.__model = YOLO(model_path)
+        self.processor = VideoProcessor()
 
     def get_frame_detections(self, frame: np.ndarray) -> list[Object]:
         results = self.__model(frame, verbose=False)
@@ -55,59 +30,79 @@ class YoloSegmentator:
         result = results[0]
 
         if result.masks is not None:
-            for i in range(len(result.masks)):
+            # frame.shape returns (height, width, channels)
+            # For 1080p: height=1080, width=1920
+            frame_height, frame_width = frame.shape[:2]
+
+            for index in range(len(result.masks)):
+                class_identifier = int(result.boxes.cls[index])
+
+                # binary_mask.shape is usually (640, 640) from the model
+                binary_mask = result.masks.data[index].cpu().numpy()
+
+                # OpenCV resize takes (WIDTH, HEIGHT)
+                # This must be (1920, 1080) for a standard 1080p frame
+                resized_mask = cv2.resize(
+                    binary_mask,
+                    (frame_width, frame_height),
+                    interpolation=cv2.INTER_NEAREST,
+                )
+
                 detection_data = Object(
-                    polygon=result.masks.xy[i],
-                    box=result.boxes.xyxy[i].cpu().numpy(),
-                    conf=float(result.boxes.conf[i]),
-                    class_id=int(result.boxes.cls[i]),
+                    masks=resized_mask,
+                    box=result.boxes.xyxy[index].cpu().numpy(),
+                    confidence=float(result.boxes.conf[index]),
+                    class_identifier=class_identifier,
+                    label_name=self.__model.names[class_identifier],
                 )
                 detections_list.append(detection_data)
+
         return detections_list
 
-    def draw_masks(
-        self, frame: np.ndarray, polygon: np.ndarray, color=(0, 255, 0)
+    def isolate_object(
+        self, frame: np.ndarray, detections: list[Object], target_name: list[str]
     ) -> np.ndarray:
-        overlay = frame.copy()
-        points = np.array([polygon], dtype=np.int32)
-        cv2.fillPoly(overlay, points, color)
-        return cv2.addWeighted(overlay, 0.4, frame, 0.6, 0)
+        self.processor.start_annotator(frame)
 
-    def draw_bounding_box(
-        self, frame: np.ndarray, box: np.ndarray, color=(0, 255, 0)
-    ) -> None:
-        x1, y1, x2, y2 = box.astype(int)
-        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+        for detection in detections:
+            if detection.label_name.lower() in target_name:
+                # Layer 1: Mask
+                self.processor.draw_mask(
+                    masks=detection.masks[None],
+                    class_identifier=detection.class_identifier,
+                )
 
-    def draw_label(
-        self, frame: np.ndarray, box: np.ndarray, label: str, color=(0, 255, 0)
-    ) -> None:
-        x1, y1, _, _ = box.astype(int)
-        cv2.putText(
-            frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2
-        )
+                # Layer 2: Bounding Box
+                self.processor.draw_bounding_box(
+                    box_coordinates=detection.box,
+                    class_identifier=detection.class_identifier,
+                )
 
-    def isolate_object( # do you really need ?
-        self, frame: np.ndarray, detections: list[Object], target_name: str
-    ) -> np.ndarray:
-        target_id = None
-        for k, v in self.__model.names.items():
-            if v.lower() == target_name.lower():
-                target_id = k
-                break
+                # Layer 3: Label
+                label_text = f"{detection.label_name} {detection.confidence:.2f}"
+                self.processor.draw_label(
+                    box_coordinates=detection.box,
+                    display_text=label_text,
+                    class_identifier=detection.class_identifier,
+                )
 
-        annotated_frame = frame.copy()
+        return self.processor.get_final_frame()
 
-        for det in detections:
-            if det.class_id == target_id:
-                # 1. Apply Mask
-                annotated_frame = self.draw_masks(annotated_frame, det.polygon)
+    @property
+    def model_path(self) -> str:
+        return self.__model_path
 
-                # 2. Draw Box
-                self.draw_bounding_box(annotated_frame, det.box)
+    @model_path.setter
+    def model_path(self, path: str) -> None:
+        self.__model_path = path
+        self.__model = YOLO(path)
 
-                # 3. Draw Label
-                full_label = f"{target_name} {det.conf:.2f}"
-                self.draw_label(annotated_frame, det.box, full_label)
+    @property
+    def frame_count(self) -> int:
+        return self.__frame_count
 
-        return annotated_frame
+    @frame_count.setter
+    def frame_count(self, value: int) -> None:
+        if value < 0:
+            raise ValueError("Frame count cannot be negative.")
+        self.__frame_count = value

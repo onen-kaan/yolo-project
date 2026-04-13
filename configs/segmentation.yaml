@@ -1,9 +1,9 @@
 # Only used seetings for Predict -------------------------------------------------------------------------------------------------------
 
 model: yolo26n-seg.pt # (str, optional) path to model file, i.e. yolov8n.pt or yolov8n.yaml
-data: yolo_dataset/TestVideo2.mp4 # (str, optional) path to data file, i.e. coco8.yaml
+data: yolo_dataset/TestVideo.mp4 # (str, optional) path to data file, i.e. coco8.yaml
 frame_count: 180 # (int) process every N'th frame
-target_class: car # (string) which class to segment
+target_class: ["car", "shadow", "truck"] # (list[string]) which class to segment
 
 # Predict settings -----------------------------------------------------------------------------------------------------
 source: # (str, optional) path/dir/URL/stream for images or videos; e.g. 'ultralytics/assets' or '0' for webcam
@@ -28,7 +28,7 @@ imgsz: 640 # (int | list) train/val use int (square); predict/export may use [h,
 device: # (int | str | list) device: 0 or [0,1,2,3] for cuda, 'cpu'/'mps', or -1/[-1,-1] to auto-select idle gpus
 batch: 16 # (int | float) batch size as int (e.g. 16), or float 0.0–1.0 for AutoBatch fraction of GPU memory
 project: segmentation-deneme # (str, optional) project name for results root
-name: deneme1 # (str, optional) experiment name; results in 'project/name'
+name: deneme2 # (str, optional) experiment name; results in 'project/name'
 verbose: true # (bool) print verbose logs during training/val
 compile: false # (bool | str) enable torch.compile() backend='inductor'; true="default", false=off, or "default|reduce-overhead|max-autotune-no-cudagraphs"
 
