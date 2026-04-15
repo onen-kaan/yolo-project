@@ -1,8 +1,11 @@
 venv/
 .venv/
 
-yolo_dataset/
+yolo_dataset
+yolo_dataset/*
 datasets/
+
+app/legacy/*
 
 *.zip
 *deneme*

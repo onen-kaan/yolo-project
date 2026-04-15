@@ -2,8 +2,8 @@
 
 model: yolo26n-seg.pt # (str, optional) path to model file, i.e. yolov8n.pt or yolov8n.yaml
 data: yolo_dataset/TestVideo.mp4 # (str, optional) path to data file, i.e. coco8.yaml
-frame_count: 180 # (int) process every N'th frame
-target_class: ["car", "shadow", "truck"] # (list[string]) which class to segment
+frame_count: 120 # (int) process every N'th frame
+target_class: ["car", "shadow", "truck", "tire"] # (list[string]) which class to segment
 
 # Predict settings -----------------------------------------------------------------------------------------------------
 source: # (str, optional) path/dir/URL/stream for images or videos; e.g. 'ultralytics/assets' or '0' for webcam

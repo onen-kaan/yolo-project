@@ -1,0 +1,79 @@
+.
+├── app
+│   ├── cli.py
+│   ├── inference
+│   │   ├── predictor.py
+│   │   ├── __pycache__
+│   │   │   ├── predictor.cpython-312.pyc
+│   │   │   ├── predictor.cpython-314.pyc
+│   │   │   ├── segmentator.cpython-312.pyc
+│   │   │   └── segmentator.cpython-314.pyc
+│   │   └── segmentator.py
+│   ├── legacy
+│   │   ├── main.py
+│   │   └── setup_legacy.py
+│   ├── __pycache__
+│   │   └── cli.cpython-312.pyc
+│   ├── train
+│   │   ├── __pycache__
+│   │   │   └── trainer.cpython-312.pyc
+│   │   └── trainer.py
+│   └── utilities
+│       ├── __pycache__
+│       │   ├── utils.cpython-312.pyc
+│       │   ├── utils.cpython-314.pyc
+│       │   └── VideoProcessor.cpython-312.pyc
+│       ├── utils.py
+│       └── VideoProcessor.py
+├── configs
+│   ├── default.yaml
+│   ├── predict.yaml
+│   ├── segmentation.yaml
+│   └── train.yaml
+├── özet.md
+├── pyproject.toml
+├── runs
+│   ├── detect
+│   │   └── train_deneme
+│   │       ├── deneme1
+│   │       │   ├── args.yaml
+│   │       │   ├── labels.jpg
+│   │       │   └── weights
+│   │       └── train
+│   │           ├── args.yaml
+│   │           ├── labels.jpg
+│   │           ├── train_batch0.jpg
+│   │           ├── train_batch1.jpg
+│   │           ├── train_batch2.jpg
+│   │           └── weights
+│   ├── exp
+│   └── yolo26n.pt
+├── segmentation-deneme
+│   └── deneme2
+│       ├── frame_000000.jpg
+│       ├── frame_000180.jpg
+│       ├── frame_000360.jpg
+│       ├── frame_000540.jpg
+│       ├── frame_000720.jpg
+│       ├── frame_000900.jpg
+│       ├── frame_001080.jpg
+│       ├── frame_001260.jpg
+│       ├── frame_001440.jpg
+│       ├── frame_001620.jpg
+│       ├── frame_001800.jpg
+│       ├── frame_001980.jpg
+│       ├── frame_002160.jpg
+│       ├── frame_002340.jpg
+│       └── frame_002520.jpg
+├── tree.txt
+├── used_sites.txt
+├── yolo26n-seg.pt
+└── yolo_project.egg-info
+    ├── dependency_links.txt
+    ├── entry_points.txt
+    ├── PKG-INFO
+    ├── requires.txt
+    ├── SOURCES.txt
+    └── top_level.txt
+
+22 directories, 55 files

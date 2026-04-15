@@ -1,29 +1,33 @@
+# ~/projects/work/yolo_project/app/main.py
+
 import argparse
 import cv2
-import utilities.utils as util
+import utilities.utils as utils
 import os
 from inference.predictor import YoloPredictor
 from inference.segmentator import YoloSegmentator
 from train.trainer import YoloTrainer
 
 
-def parseArgs() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="YOLO CLI with Subcommands")
+def parse_arguments() -> argparse.Namespace:
+    argument_parser = argparse.ArgumentParser(description="YOLO CLI with Subcommands")
 
     # Create the subparser handler
-    subparsers = parser.add_subparsers(
+    subparser_handler = argument_parser.add_subparsers(
         dest="command", required=True, help="Working mode"
     )
 
     # --- TRAIN Subcommand ---
-    train_parser = subparsers.add_parser("train", help="Run model training")
-    _ = train_parser.add_argument(
+    train_parser = subparser_handler.add_parser("train", help="Run model training")
+    train_parser.add_argument(
         "-c", "--config", type=str, default="train.yaml", help="Path to train config"
     )
 
     # --- INFERENCE Subcommand ---
-    predict_parser = subparsers.add_parser("predict", help="Run standard inference")
-    _ = predict_parser.add_argument(
+    predict_parser = subparser_handler.add_parser(
+        "predict", help="Run standard inference"
+    )
+    predict_parser.add_argument(
         "-c",
         "--config",
         type=str,
@@ -32,77 +36,96 @@ def parseArgs() -> argparse.Namespace:
     )
 
     # --- SEGMENT Subcommand ---
-    segmentation_parser = subparsers.add_parser(
-        "segment", help="Run model segmentation"
+    segmentation_parser = subparser_handler.add_parser(
+        "segment", help="Execute segmentation on a video file"
     )
-    _ = segmentation_parser.add_argument(
+    segmentation_parser.add_argument(
         "-c",
         "--config",
         type=str,
         default="segmentation.yaml",
-        help="Path to segmentation config",
+        help="Path to the segmentation configuration file",
     )
 
-    return parser.parse_args()
+    return argument_parser.parse_args()
 
 
 def main() -> None:
-    args = parseArgs()
+    arguments = parse_arguments()
 
-    if args.command == "train":
-        config = args.config or "train.yaml"
-        trainer = YoloTrainer(config_path=config)
+    if arguments.command == "train":
+        configuration_path = arguments.config
+        trainer = YoloTrainer(config_path=configuration_path)
         trainer.train()
 
-    elif args.command == "predict":
-        config = args.config or "predict.yaml"
-        predictor = YoloPredictor(configPath=config)
+    elif arguments.command == "predict":
+        configuration_path = arguments.config
+        predictor = YoloPredictor(configPath=configuration_path)
         results = predictor.predict()
-
         for r in results:
             print(r)
 
-    elif args.command == "segment":
-        cfg_file = args.config
-        model_path: str = util.get_from_config(cfg_file, "model")
-        video_path: str = util.get_from_config(cfg_file, "data")
-        frame_step: int = util.get_from_config(cfg_file, "frame_count")
-        target: str = util.get_from_config(cfg_file, "target_class")
+    elif arguments.command == "segment":
+        configuration_path = arguments.config
 
-        project = util.get_from_config(cfg_file, "project") or "runs"
-        name = util.get_from_config(cfg_file, "name") or "exp"
-        output_dir = os.path.join(project, name)
-        os.makedirs(output_dir, exist_ok=True)
+        # Load configuration
+        model_file_path: str = utils.get_from_config(configuration_path, "model")
+        video_file_path: str = utils.get_from_config(configuration_path, "data")
+        frame_skip_interval: int = utils.get_from_config(
+            configuration_path, "frame_count"
+        )
+        target_object_names: list[str] = utils.get_from_config(
+            configuration_path, "target_class"
+        )
+        project_folder = utils.get_from_config(configuration_path, "project") or "runs"
+        experiment_folder = utils.get_from_config(configuration_path, "name") or "exp"
 
-        segmentator = YoloSegmentator(model_path, video_path, frame_step)
-        capturer = util.get_video_capture(video_path)
-        total_frames = int(capturer.get(cv2.CAP_PROP_FRAME_COUNT))
+        # Create output directory
+        output_directory = os.path.join(project_folder, experiment_folder)
+        os.makedirs(output_directory, exist_ok=True)
 
-        # if frame_count % 5 == 0 didn't used that because of readability and the % 5 logic is not here
+        # Initialize segmentator
+        segmentator_instance = YoloSegmentator(
+            model_path=model_file_path,
+            video_path=video_file_path,
+            initial_frame_count=frame_skip_interval,
+        )
 
-        processed_count = 0
+        # Process video
+        video_capturer = utils.get_video_capture(video_file_path)
+        total_video_frames = int(video_capturer.get(cv2.CAP_PROP_FRAME_COUNT))
+        processed_iteration_count = 0
+
         while True:
-            current_frame_index = processed_count * segmentator.frame_count
-            if current_frame_index > total_frames:
+            target_frame_index = (
+                processed_iteration_count * segmentator_instance.frame_count
+            )
+
+            if target_frame_index >= total_video_frames:
                 break
 
-            capturer.set(cv2.CAP_PROP_POS_FRAMES, current_frame_index)
+            video_capturer.set(cv2.CAP_PROP_POS_FRAMES, target_frame_index)
+            reading_success, current_frame = video_capturer.read()
 
-            success, frame = capturer.read()
-            if not success:
+            if not reading_success:
                 break
 
-            # Process
-            detections = segmentator.get_frame_detections(frame)
-            processed_frame = segmentator.isolate_object(frame, detections, target)
+            # Perform segmentation
+            detections = segmentator_instance.get_frame_detections(current_frame)
+            processed_frame = segmentator_instance.isolate_object(
+                frame=current_frame,
+                detections=detections,
+                target_name=target_object_names,
+            )
 
-            # Save
-            file_name = f"frame_{processed_count:04d}.jpg"
-            cv2.imwrite(os.path.join(output_dir, file_name), processed_frame)
+            # Save processed frame
+            output_filename = f"frame_{target_frame_index:06d}.jpg"
+            full_save_path = os.path.join(output_directory, output_filename)
+            cv2.imwrite(full_save_path, processed_frame)
 
-            processed_count += 1
+            processed_iteration_count += 1
 
-        capturer.release()
+        video_capturer.release()
 
 
 if __name__ == "__main__":

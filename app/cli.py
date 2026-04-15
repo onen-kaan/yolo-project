@@ -1,7 +1,7 @@
 import fire
-from inference.predictor import YoloPredictor
-from inference.segmentator import YoloSegmentator
-from train.trainer import YoloTrainer
+from app.inference.predictor import YoloPredictor
+from app.inference.segmentator import YoloSegmentator
+from app.train.trainer import YoloTrainer
 
 
 class YoloCLI:

@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: yolo_project
+Version: 0.3
+Requires-Dist: requests
+Requires-Dist: fire==0.7.1
+Requires-Dist: numpy==2.4.4
+Requires-Dist: opencv-python==4.13.0.92
+Requires-Dist: PyYAML==6.0.3
+Requires-Dist: ultralytics==8.4.37

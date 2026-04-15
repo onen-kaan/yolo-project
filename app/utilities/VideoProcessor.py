@@ -1,5 +1,3 @@
-# ~/projects/work/yolo_project/app/utilities/VideoProcessor.py
-
 from ultralytics.utils.plotting import Annotator, colors
 import numpy as np
 

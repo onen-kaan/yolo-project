@@ -1,0 +1,13 @@
+pyproject.toml
+app/cli.py
+app/inference/predictor.py
+app/inference/segmentator.py
+app/train/trainer.py
+app/utilities/VideoProcessor.py
+app/utilities/utils.py
+yolo_project.egg-info/PKG-INFO
+yolo_project.egg-info/SOURCES.txt
+yolo_project.egg-info/dependency_links.txt
+yolo_project.egg-info/entry_points.txt
+yolo_project.egg-info/requires.txt
+yolo_project.egg-info/top_level.txt

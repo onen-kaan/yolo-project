@@ -1,17 +1,12 @@
 from ultralytics import YOLO
-from utilities.utils import get_from_config
+from app.utilities.utils import get_from_config
 
 
 class YoloPredictor:
     def __init__(self, configPath: str = "predict.yaml") -> None:
         self.__configPath = configPath
         self.__model = self.__setupModel()
-@dataclass
-class Object:
-    polygon: np.ndarray
-    box: np.ndarray
-    conf: float
-    class_id: int
+
     def __setupModel(self) -> YOLO:
         modelVal = get_from_config(self.__configPath, "model")
         return YOLO(str(modelVal) if modelVal else "yolo26n.pt")
@@ -28,3 +23,8 @@ class Object:
         print(f"Starting inference with config: {self.__configPath}")
         results = self.__model.predict(cfg=self.__configPath)
         return results
+
+    def reuslt(self, results) -> None:
+
+        for result in results:
+            print(result)
