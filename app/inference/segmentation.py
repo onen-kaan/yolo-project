@@ -1,16 +1,7 @@
-from dataclasses import dataclass
 import numpy as np
 import cv2
 from ultralytics import YOLO
-
-
-@dataclass
-class Detection:
-    bounding_box_coordinates: np.ndarray
-    confidence_score: float
-    class_identifier: int
-    class_label_name: str
-    segmentation_mask: np.ndarray | None
+from app.inference.Detection import Detection
 
 
 class YoloSegmentModel:
