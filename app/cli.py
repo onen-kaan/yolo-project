@@ -1,7 +1,7 @@
 import fire
 from app.inference.predictor import YoloPredictor
-from app.inference.segmentator import YoloSegmentator
 from app.train.trainer import YoloTrainer
+from app.inference.runSegment import runSegment
 
 
 class YoloCLI:
@@ -13,9 +13,9 @@ class YoloCLI:
         predictor = YoloPredictor(configPath=config)
         predictor.reuslt(predictor.predict())
 
-    def segment(self, config: str = "segmentator.yaml") -> None:
-        segment = YoloSegmentator(config_path=config)
-        segment.segment()
+    def segmentation(self, config: str = "segmentator.yaml") -> None:
+        segment = runSegment(config_path=config)
+        segment.run()
 
 
 def main() -> None:
