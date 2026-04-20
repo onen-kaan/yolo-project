@@ -1,9 +1,12 @@
 pyproject.toml
 app/cli.py
+app/inference/Detection.py
+app/inference/YoloAnnotator.py
 app/inference/predictor.py
-app/inference/segmentator.py
+app/inference/runSegment.py
+app/inference/segmentation.py
 app/train/trainer.py
-app/utilities/VideoProcessor.py
+app/utilities/VideoReader.py
 app/utilities/utils.py
 yolo_project.egg-info/PKG-INFO
 yolo_project.egg-info/SOURCES.txt

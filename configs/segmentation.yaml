@@ -2,7 +2,7 @@
 
 model: yolo26n-seg.pt # (str, optional) path to model file, i.e. yolov8n.pt or yolov8n.yaml
 data: yolo_dataset/TestVideo.mp4 # (str, optional) path to data file, i.e. coco8.yaml
-frame_count: 120 # (int) process every N'th frame
+frame_count: 12 # (int) process every N'th frame
 target_class: ["car", "shadow", "truck", "tire"] # (list[string]) which class to segment
 
 # Predict settings -----------------------------------------------------------------------------------------------------
@@ -41,5 +41,6 @@ save_crop: false # (bool) save cropped prediction regions to files
 show_labels: True # (bool) draw class labels on images, e.g. 'person'
 show_conf: True # (bool) draw confidence values on images, e.g. '0.99'
 show_boxes: True # (bool) draw bounding boxes on images
-line_width: # (int, optional) line width of boxes; auto-scales with image size if not set
+line_width:
+  # (int, optional) line width of boxes; auto-scales with image size if not set
 
