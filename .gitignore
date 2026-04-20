@@ -8,3 +8,4 @@ app/legacy/*
 *__*__*
 runs/
 *.pt
+*.md
